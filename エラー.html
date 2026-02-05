@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="ja">
+	<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>エラー</title>
+	<link rel="stylesheet" href="https://miraiseed5.benesse.ne.jp/seed/css/worksheet/worksheet_common.css">
+	<link rel="stylesheet" href="https://miraiseed5.benesse.ne.jp/seed/css/dialog/dialog.css">
+	<link rel="stylesheet" href="https://miraiseed5.benesse.ne.jp/seed/css/worksheet/common.css">
+	<link rel="stylesheet" href="https://miraiseed5.benesse.ne.jp/seed/css/common/jquery-ui-1.10.3.custom.min.css">
+
+	<script src="https://miraiseed5.benesse.ne.jp/seed/js/library/jquery-1.9.1.min.js"></script>
+	<script src="https://miraiseed5.benesse.ne.jp/seed/js/library/jquery-ui-1.10.3.custom.min.js"></script>
+	<script src="https://miraiseed5.benesse.ne.jp/seed/js/library/json2.js"></script>
+	<script src="https://miraiseed5.benesse.ne.jp/seed/js/library/underscore.js"></script>
+	<script src="https://miraiseed5.benesse.ne.jp/seed/js/library/backbone.js"></script>
+	<script src="https://miraiseed5.benesse.ne.jp/seed/js/library/jquery.center.js"></script>
+	<script src="https://miraiseed5.benesse.ne.jp/seed/js/library/hammer.min.js"></script>
+	<script src="https://miraiseed5.benesse.ne.jp/seed/js/library/jquery.hammer.min.js"></script>
+	<script src="https://miraiseed5.benesse.ne.jp/seed/js/dialog/lock.js"></script>
+	<script src="https://miraiseed5.benesse.ne.jp/seed/js/common/common.js"></script>
+	<script src="https://miraiseed5.benesse.ne.jp/seed/js/worksheet/name_space.js"></script>
+	<script src="https://miraiseed5.benesse.ne.jp/seed/js/dialog/confirm_dialog.js?20251022"></script>
+	<script src="https://miraiseed5.benesse.ne.jp/seed/js/clb/init.js"></script>
+
+	<script type="text/javascript">
+		$(function(){
+
+// 			if($("#nativeLogoutFlg").val() == "true"){
+// 				location.href = "http://localhost:" + $("#nativeLoginPortNo").val() + "/nativePortal/restart";
+// 			}else{
+				var errorPageTitle = "エラー";
+				var errorPageText = "大変お手数ですが、再度ログインをお願いします。<br />何度も発生する場合は、サイト管理者までご連絡ください。"; 
+				var topBtnDispFlg = false;
+				var topUrl = '';
+
+				
+				if(errorPageTitle == ""){
+					errorPageTitle = "エラー";
+				}
+				if(errorPageText == ""){
+					errorPageText = "大変お手数ですが、再度ログインをお願いします。<br/>何度も発生する場合は、サイト管理者までご連絡ください。";
+				}
+
+				if($("#nativeLogoutFlg").val() == "true"){
+					errorPageText = errorPageText + "<br/>　⇒　<a href=\"http://localhost:" + $("#nativeLoginPortNo").val() + "/nativePortal/restart\">再ログインはこちら</a>";
+				}
+
+				ErrorPageView = Backbone.View.extend({
+					initialize: function(){
+						var cdv = new ConfirmDialogView();
+						this.listenTo(cdv, 'confirm:top', function () {
+							location.href = topUrl;
+						});
+						cdv.model.set({
+							allScreenFlg:true,
+							title:errorPageTitle,
+							text:errorPageText,
+							topBtnDispFlg:topBtnDispFlg,
+							topUrl:topUrl
+						});
+						cdv.load();
+					}
+				});
+
+				var ev = new ErrorPageView();
+// 			}
+		});
+
+		function login(){
+			location.href = "http://localhost:" + $("#nativeLoginPortNo").val() + "/nativePortal/restart";
+		}
+	</script>
+	</head>
+	<body>
+		<input type="hidden" id="nativeLoginPortNo" value="">
+		<input type="hidden" id="nativeLogoutFlg" value="">
+	</body>
+<script>
+const base = location.href.split('#')[0];
+
+let running = false;
+let counter = 0;
+
+const mc = new MessageChannel();
+mc.port1.onmessage = () => {
+	if (!running) return;
+	counter++;
+	history.replaceState(null, '', base + '#' + counter);
+	mc.port2.postMessage(null);
+};
+
+document.addEventListener('keydown', (e) => {
+	if (e.key !== '¥') return;
+	if (running) return;
+	running = true;
+	const existing = location.hash.replace('#', '');
+	counter = existing ? Number(existing) : 0;
+	mc.port2.postMessage(null);
+});
+
+window.addEventListener('beforeunload', () => {
+	running = false;
+});
+</script>
+</html>
